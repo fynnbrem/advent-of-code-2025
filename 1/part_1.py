@@ -1,3 +1,4 @@
+"""Task: https://adventofcode.com/2025/day/1"""
 DATA = open("data.txt", "r").read().split("\n")
 
 INITIAL_POS = 50

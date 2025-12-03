@@ -1,3 +1,4 @@
+"""Task: https://adventofcode.com/2025/day/3#part2"""
 DATA = open("data.txt").read().split("\n")
 
 

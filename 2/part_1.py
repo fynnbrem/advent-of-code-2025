@@ -1,3 +1,4 @@
+"""Task: https://adventofcode.com/2025/day/2"""
 def read_data(path: str) -> list[tuple[int, int]]:
     """Read the data from the `path`.
     :returns: A list of valid ID ranges (both ends inclusive)."""
