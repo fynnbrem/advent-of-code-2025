@@ -20,6 +20,12 @@ class Grid(Generic[T]):
         Every row of text is converted to a grid row, every character to a single cell."""
         return cls(text.split("\n"))
 
+    @classmethod
+    def from_object(cls, obj: T, dim: tuple[int, int]) -> "Grid[T]":
+        """Create a grid with the dimensions `dim` with every cell filled with the `obj`."""
+        data = [[obj for _ in range(dim[0])] for _ in range(dim[1])]
+        return cls(data)
+
     def get(self, x: int, y: int) -> T:
         """Return the cell value at column `x` and row `y`."""
         return self.data[y][x]
@@ -34,9 +40,15 @@ class Grid(Generic[T]):
     def __setitem__(self, pos: Pos, value: T) -> None:
         self.set(*pos, value)
 
-    def get_neighbours(self, x: int, y: int) -> list[Pos]:
-        """Returns all neighbours of the cell at `(x, y)`. Includes diagonals.
+    def get_neighbour_values(self, pos: Pos) -> list[Pos]:
+        """Returns all neighbours of the cell at `pos`. Includes diagonals.
         The cells are returned in clockwise order, starting at 12 o'clock."""
+        return [self.get(*coord) for coord in self.get_neighbours(pos)]
+
+    def get_neighbours(self, pos: Pos) -> list[Pos]:
+        """Returns all neighbour coordinates of the cell at `pos`. Includes diagonals.
+        The cells are returned in clockwise order, starting at 12 o'clock."""
+        x, y = pos
         coords = [
             (x, y - 1),
             (x + 1, y - 1),
@@ -47,21 +59,33 @@ class Grid(Generic[T]):
             (x - 1, y),
             (x - 1, y - 1)
         ]
+        return [c for c in coords if self.is_in_bounds(c)]
 
-        return [self.get(*coord) for coord in coords if self.is_in_bounds(*coord)]
+    def get_adjacents(self, pos: Pos) -> list[Pos]:
+        """Returns all adjacent coordinates of the cell at the `pos`.
+        The cells are returned in clockwise order, starting at 12 o'clock."""
+        x, y = pos
+        coords = [
+            (x, y - 1),
+            (x + 1, y),
+            (x, y + 1),
+            (x - 1, y),
+        ]
+        return [c for c in coords if self.is_in_bounds(c)]
 
     def iter_cells(self) -> Generator[Pos, None, None]:
         """Iterate over all cells in this grid.
         Returns their positions, going through columns first."""
         return ((x, y) for y, row in enumerate(self.data) for x, _ in enumerate(row))
 
-    def is_in_bounds(self, x: int, y: int) -> bool:
+    def is_in_bounds(self, pos: Pos) -> bool:
         """Check if `(x, y)` is an index within the boundaries of this grid."""
+        x, y = pos
         return 0 <= x < self.dim[0] and 0 <= y < self.dim[1]
 
     def as_text(self) -> str:
         """Format the grid as string by merging the rows to text lines."""
-        return "\n".join(("".join(row) for row in self.data))
+        return "\n".join(("".join(str(c) for c in row) for row in self.data))
 
     def print(self):
         """Prints the grid as string by merging the rows to text lines."""
@@ -83,7 +107,7 @@ class Grid(Generic[T]):
             case _:
                 raise ValueError("Invalid direction.")
 
-        if self.is_in_bounds(*new):
+        if self.is_in_bounds(new):
             return new
         else:
             return None
@@ -92,5 +116,5 @@ class Grid(Generic[T]):
 if __name__ == "__main__":
     grid = Grid.from_text("123\n456\n789")
     print(grid.data)
-    print(grid.get_neighbours(1, 1))
+    print(grid.get_neighbour_values((1, 1)))
     print(list(grid.iter_cells()))

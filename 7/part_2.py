@@ -43,7 +43,8 @@ def traverse(grid: Grid[str], start: tuple[int, int]) -> int:
 def main():
     """Traverse the grid with the beam, starting on the "S" start."""
     splits = traverse(DATA, START)
-    print("Total beam splits:", splits + 1)
+    # We must add 1 for the initial timeline created but just starting.
+    print("Total timelines:", splits + 1)
 
 
 if __name__ == '__main__':
